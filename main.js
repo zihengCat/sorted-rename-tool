@@ -10,7 +10,7 @@ const url = require('url')
     // Create the browser window.
     win = new BrowserWindow({
         width: 700,
-        height: 600,
+        height: 650,
         autoHideMenuBar: true
     });
 

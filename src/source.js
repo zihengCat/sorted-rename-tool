@@ -17,7 +17,6 @@ function doUnitTest(){
 function doRename(){
     // import Node.JS Library
     const os   = require("os");
-    const fs   = require("fs");
     const path = require("path");
     // select elements
     var fileList = document.querySelectorAll(".invisiable");
@@ -25,27 +24,63 @@ function doRename(){
     var postStr  = document.querySelector("#post").value;
     // must be interger number
     var format   = parseInt(document.querySelector("#format").value);
+
+    var listJSON = { };
+    listJSON.numOrder = [];
+    listJSON.oldName  = [];
+    listJSON.newName  = [];
+
     for(var i = 0; i < fileList.length; i++){
         var oldPath = fileList[i].textContent;
         var pathObj = path.parse(oldPath);
-        var newPath = pathObj.dir
-                    +  "/"
+        var newPath = pathObj.dir +
+            // slash for different OS
+            (os.type() == "Windows_NT" ? "\\": "/")
                     + preStr
                     // padding zeros
                     + addPreZero(i.toString(), format)
                     + postStr
                     + pathObj.ext;
-        // Debug Log
-        console.log(newPath);
-        fs.rename(oldPath, newPath, function(err){
-            if(err){
-               throw err;
-            }
-            else{
-                console.log('Done --> ', i);
-            }
-        });
 
+        listJSON.numOrder[i] = i;
+        listJSON.oldName[i]  = oldPath;
+        listJSON.newName[i]  = newPath;
+    }
+    // Debug Log
+    console.log(listJSON);
+    renameExec(listJSON);
+}
+
+function checkFileNameConflict(listJSON){
+    for(var i = 0; i < listJSON.numOrder.length; i++){
+        for(var j = 0; j < listJSON.numOrder.length; j++){
+            if(listJSON.oldName[i] ==
+               listJSON.newName[j]){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+function renameExec(listJSON){
+    if(checkFileNameConflict(listJSON) == 0){
+        const fs = require("fs");
+        for(var i = 0; i < listJSON.numOrder.length; i++){
+            fs.rename(listJSON.oldName[i], listJSON.newName[i],
+                function(err) {
+                    if(err){
+                       throw err;
+                    }
+                    else{
+                        console.log('Done --> ', i);
+                    }
+            });
+        }
+        window.alert("完成！");
+    }
+    else {
+        window.alert("文件名冲突，请添加重命名规则...");
     }
 }
 
@@ -104,63 +139,68 @@ function addElem(pathName) {
     simpleList.appendChild(newElem);
 }
 
-/*----- UI Functions -------*/
-	$(document).ready(function () {
-	    $(function () {
-	        $('.sortable-accordion div').show();
-	        $('.sortable-accordion div').slideToggle('slow');
-	        $('.sortable-accordion h3').click(function () {
-	            $(this).next('.inner').slideToggle().siblings('.inner:visible').slideUp();
-	            $(this).toggleClass('current');
-	            $(this).siblings('h3').removeClass('current');
-	        });
-	    });
-	    $('.sortable').sortable({ placeholder: 'ui-sortable-placeholder' }).find('li').append('<span class=\'options\'></span>');
-	    $('#submenu a').click(function () {
-	        return false;
-	    });
+/*----- UI Functions -----*/
+$(document).ready(function () {
+    //------------
+    $(function () {
+        $('.sortable-accordion div').show();
+        $('.sortable-accordion div').slideToggle('slow');
+        $('.sortable-accordion h3').click(function () {
+            $(this).next('.inner').slideToggle().siblings('.inner:visible').slideUp();
+            $(this).toggleClass('current');
+            $(this).siblings('h3').removeClass('current');
+        });
+    });
+    //------------
+    $('.sortable').sortable({
+        placeholder: 'ui-sortable-placeholder'
+    }).find('li').append('<span class="options"></span>');
 
-	    $('.options').click(function () {
-	        var childpos = $(this).offset();
-	        var parentpos = $(this).parent().offset();
-	        var posLeft = childpos.left - parentpos.left;
-	        $('#submenu').css({
-	            'top': childpos.top - 10 + 'px',
-	            'left': posLeft + 420 + 'px'
-	        }).fadeIn(200);
-	        $('#submenu').mouseleave(function () {
-	            $(this).fadeOut(200);
-	        });
-	    });
-
-	    $('#toggleMenu .list').click(function () {
-	        $('#sidebar-menu li span').animate({
-	            'opacity': 1,
-	            'margin-left': '0px'
-	        });
-	        $('#sidebar-menu').toggleClass('animate');
-	        $('#toggleMenu .list').fadeOut();
-	        $('#toggleMenu .thumbs').fadeIn();
-	    });
-	    $('#toggleMenu .thumbs').click(function () {
-	        $('#sidebar-menu li span').css({
-	            'opacity': 0,
-	            'margin-left': '10px'
-	        });
-	        $('#sidebar-menu').toggleClass('animate');
-	        $('#toggleMenu .thumbs').fadeOut();
-	        $('#toggleMenu .list').fadeIn();
-	    });
-	    $('#sidebar-menu li').click(function () {
-	        $('#sidebar-menu li').not(this).removeClass('selected');
-	        $(this).toggleClass('selected');
-	    });
-	    $('#drop-select').click(function () {
-	        $('#dropdown-list').toggleClass('animate');
-	    });
-	    $('#dropdown-list li').click(function () {
-	        $('#dropdown-list').removeClass('animate');
-	    });
-	});
-/*----- UI Functions -------*/
+    $('#submenu a').click(function () {
+        return false;
+    });
+    //------------
+    $('.options').click(function () {
+        var childpos = $(this).offset();
+        var parentpos = $(this).parent().offset();
+        var posLeft = childpos.left - parentpos.left;
+        $('#submenu').css({
+            'top': childpos.top - 10 + 'px',
+            'left': posLeft + 420 + 'px'
+        }).fadeIn(200);
+        $('#submenu').mouseleave(function () {
+            $(this).fadeOut(200);
+        });
+    });
+    //------------
+    $('#toggleMenu .list').click(function () {
+        $('#sidebar-menu li span').animate({
+            'opacity': 1,
+            'margin-left': '0px'
+        });
+        $('#sidebar-menu').toggleClass('animate');
+        $('#toggleMenu .list').fadeOut();
+        $('#toggleMenu .thumbs').fadeIn();
+    });
+    $('#toggleMenu .thumbs').click(function () {
+        $('#sidebar-menu li span').css({
+            'opacity': 0,
+            'margin-left': '10px'
+        });
+        $('#sidebar-menu').toggleClass('animate');
+        $('#toggleMenu .thumbs').fadeOut();
+        $('#toggleMenu .list').fadeIn();
+    });
+    $('#sidebar-menu li').click(function () {
+        $('#sidebar-menu li').not(this).removeClass('selected');
+        $(this).toggleClass('selected');
+    });
+    $('#drop-select').click(function () {
+        $('#dropdown-list').toggleClass('animate');
+    });
+    $('#dropdown-list li').click(function () {
+        $('#dropdown-list').removeClass('animate');
+    });
+});
+/*----- UI Functions -----*/
 
