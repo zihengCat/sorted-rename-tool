@@ -1,0 +1,13 @@
+{
+    "name": "sorted-rename-tool",
+    "version": "0.1.0",
+    "main": "main.js",
+    "scripts": {
+        "dev": "electron . ",
+        "build:win32": "electron-packager . sorted-rename-tool --out=../ --platform=win32 --arch=ia32 --electron-version=1.8.2 --asar --app-version=0.1.0 --build-version=0.0.1 --overwrite --ignore=\"(node_modules | screenshots | .git)\" --prune"
+    },
+    "devDependencies": {
+        "electron": "^1.8.2",
+        "electron-packager": "^11.0.1"
+    }
+}
