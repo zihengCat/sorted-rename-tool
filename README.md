@@ -1,6 +1,7 @@
 # sorted-rename-tool
 
 A useful GUI tool for sort and rename files according to sequences.
+
 一款手动排序，批量重命名的小工具。
 
 # Screenshots
@@ -17,5 +18,4 @@ A useful GUI tool for sort and rename files according to sequences.
 # License
 
 [MIT](LICENSE)
-
 
