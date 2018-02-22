@@ -5,8 +5,9 @@ node_js:
 before_script:
     - "npm install"
 script:
-    - "npm run dev"
+    - "npm run build:linux64"
 after_script:
+    - "ls .."
 
 branches:
     only:
